@@ -1,20 +1,49 @@
 import { defineNuxtConfig } from 'nuxt'
+import colors from './colors'
 
 export default defineNuxtConfig({
-  modules: [
+  buildModules: [
     '@vueuse/nuxt',
-    '@unocss/nuxt',
     '@pinia/nuxt',
-    '@nuxtjs/color-mode',
+    'nuxt-windicss',
   ],
-  experimental: {
-    reactivityTransform: true,
-    viteNode: false,
+  vueuse: {
+    ssrHandlers: true,
   },
-  unocss: {
-    preflight: true,
+  build: {
+    loaders: {
+      less: {
+        lessOptions: {
+          javascriptEnabled: true,
+        },
+      },
+    },
+    babel: {
+      plugins: ['@vue/babel-plugin-jsx'],
+    },
+    transpile: ['@antv/g2'],
   },
-  colorMode: {
-    classSuffix: '',
+  vite: {
+    build: {
+      chunkSizeWarningLimit: 1500,
+    },
+    css: {
+      preprocessorOptions: {
+        less: {
+          additionalData: (function () {
+            let variables = ''
+
+            for (const key in colors) {
+              const variable = `@${key}`
+              const color = colors[key]
+
+              variables += `${variable}: ${color};\n`
+            }
+
+            return variables
+          }()),
+        },
+      },
+    },
   },
 })
